@@ -38,14 +38,14 @@ struct lzma_index_hash {};
  * pointer than the index_hash that was given as an argument.
  */
 nothrow lzma_index_hash * lzma_index_hash_init(
-        lzma_index_hash *index_hash, lzma_allocator *allocator);
+        lzma_index_hash *index_hash, const lzma_allocator *allocator);
 
 
 /**
  * \brief       Deallocate lzma_index_hash structure
  */
 nothrow void lzma_index_hash_end(
-        lzma_index_hash *index_hash, lzma_allocator *allocator);
+        lzma_index_hash *index_hash, const lzma_allocator *allocator);
 
 
 /**

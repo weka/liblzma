@@ -22,8 +22,8 @@ extern(C):
  * Version number split into components
  */
 enum LZMA_VERSION_MAJOR = 5;
-enum LZMA_VERSION_MINOR = 0;
-enum LZMA_VERSION_PATCH = 3;
+enum LZMA_VERSION_MINOR = 2;
+enum LZMA_VERSION_PATCH = 4;
 enum LZMA_VERSION_STABILITY = LZMA_VERSION_STABILITY_STABLE;
 
 /*

@@ -305,6 +305,29 @@ enum lzma_action
          * no unfinished Block, no empty Block is created.
          */
 
+    LZMA_FULL_BARRIER = 4,
+        /**<
+         * \brief       Finish encoding of the current Block
+         *
+         * This is like LZMA_FULL_FLUSH except that this doesn't
+         * necessarily wait until all the input has been made
+         * available via the output buffer. That is, lzma_code()
+         * might return LZMA_STREAM_END as soon as all the input
+         * has been consumed (avail_in == 0).
+         *
+         * LZMA_FULL_BARRIER is useful with a threaded encoder if
+         * one wants to split the .xz Stream into Blocks at specific
+         * offsets but doesn't care if the output isn't flushed
+         * immediately. Using LZMA_FULL_BARRIER allows keeping
+         * the threads busy while LZMA_FULL_FLUSH would make
+         * lzma_code() wait until all the threads have finished
+         * until more data could be passed to the encoder.
+         *
+         * With a lzma_stream initialized with the single-threaded
+         * lzma_stream_encoder() or lzma_easy_encoder(),
+         * LZMA_FULL_BARRIER is an alias for LZMA_FULL_FLUSH.
+         */
+
     LZMA_FINISH = 3
         /**<
          * \brief       Finish the coding operation
@@ -335,11 +358,19 @@ enum lzma_action
  * malloc() and free(). C++ users should note that the custom memory
  * handling functions must not throw exceptions.
  *
- * liblzma doesn't make an internal copy of lzma_allocator. Thus, it is
- * OK to change these function pointers in the middle of the coding
- * process, but obviously it must be done carefully to make sure that the
- * replacement `free' can deallocate memory allocated by the earlier
- * `alloc' function(s).
+ * Single-threaded mode only: liblzma doesn't make an internal copy of
+ * lzma_allocator. Thus, it is OK to change these function pointers in
+ * the middle of the coding process, but obviously it must be done
+ * carefully to make sure that the replacement `free' can deallocate
+ * memory allocated by the earlier `alloc' function(s).
+ *
+ * Multithreaded mode: liblzma might internally store pointers to the
+ * lzma_allocator given via the lzma_stream structure. The application
+ * must not change the allocator pointer in lzma_stream or the contents
+ * of the pointed lzma_allocator structure until lzma_end() has been used
+ * to free the memory associated with that lzma_stream. The allocation
+ * functions might be called simultaneously from multiple threads, and
+ * thus they must be thread safe.
  */
 struct lzma_allocator
 {
@@ -451,7 +482,8 @@ struct lzma_internal {}
  *
  * Application may modify the values of total_in and total_out as it wants.
  * They are updated by liblzma to match the amount of data read and
- * written, but aren't used for anything else.
+ * written but aren't used for anything else except as a possible return
+ * values from lzma_get_progress().
  */
 struct lzma_stream
 {
@@ -468,6 +500,8 @@ struct lzma_stream
      *
      * In most cases this is NULL which makes liblzma use
      * the standard malloc() and free().
+     *
+     * \note        In 5.0.x this is not a const pointer.
      */
     lzma_allocator *allocator;
 
@@ -532,6 +566,24 @@ nothrow void lzma_end(lzma_stream *strm);
 
 
 /**
+ * \brief       Get progress information
+ *
+ * In single-threaded mode, applications can get progress information from
+ * strm->total_in and strm->total_out. In multi-threaded mode this is less
+ * useful because a significant amount of both input and output data gets
+ * buffered internally by liblzma. This makes total_in and total_out give
+ * misleading information and also makes the progress indicator updates
+ * non-smooth.
+ *
+ * This function gives realistic progress information also in multi-threaded
+ * mode by taking into account the progress made by each thread. In
+ * single-threaded mode *progress_in and *progress_out are set to
+ * strm->total_in and strm->total_out, respectively.
+ */
+nothrow void lzma_get_progress(lzma_stream *strm, ulong *progress_in, ulong *progress_out);
+
+
+/**
  * \brief       Get the memory usage of decoder filter chain
  *
  * This function is currently supported only when *strm has been initialized
@@ -573,10 +625,15 @@ nothrow pure ulong lzma_memlimit_get(const lzma_stream *strm);
  * This function is supported only when *strm has been initialized with
  * a function that takes a memlimit argument.
  *
+ * liblzma 5.2.3 and earlier has a bug where memlimit value of 0 causes
+ * this function to do nothing (leaving the limit unchanged) and still
+ * return LZMA_OK. Later versions treat 0 as if 1 had been specified (so
+ * lzma_memlimit_get() will return 1 even if you specify 0 here).
+ *
  * \return      - LZMA_OK: New memory usage limit successfully set.
  *              - LZMA_MEMLIMIT_ERROR: The new limit is too small.
  *                The limit was not changed.
  *              - LZMA_PROG_ERROR: Invalid arguments, e.g. *strm doesn't
- *                support memory usage limit or memlimit was zero.
+ *                support memory usage limit.
  */
 nothrow lzma_ret lzma_memlimit_set(lzma_stream *strm, ulong memlimit);

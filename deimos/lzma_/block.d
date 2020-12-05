@@ -33,11 +33,16 @@ struct lzma_block
     /**
      * \brief       Block format version
      *
-     * To prevent API and ABI breakages if new features are needed in
-     * the Block field, a version number is used to indicate which
-     * fields in this structure are in use. For now, version must always
-     * be zero. With non-zero version, most Block related functions will
-     * return LZMA_OPTIONS_ERROR.
+     * To prevent API and ABI breakages when new features are needed,
+     * a version number is used to indicate which fields in this
+     * structure are in use:
+     *   - liblzma >= 5.0.0: version = 0 is supported.
+     *   - liblzma >= 5.1.4beta: Support for version = 1 was added,
+     *     which adds the ignore_check field.
+     *
+     * If version is greater than one, most Block related functions
+     * will return LZMA_OPTIONS_ERROR (lzma_block_header_decode() works
+     * with any version value).
      *
      * Read by:
      *  - All functions that take pointer to lzma_block as argument,
@@ -236,7 +241,28 @@ struct lzma_block
     lzma_reserved_enum reserved_enum2;
     lzma_reserved_enum reserved_enum3;
     lzma_reserved_enum reserved_enum4;
-    lzma_bool reserved_bool1;
+
+    /**
+     * \brief       A flag to Block decoder to not verify the Check field
+     *
+     * This field is supported by liblzma >= 5.1.4beta if .version >= 1.
+     *
+     * If this is set to true, the integrity check won't be calculated
+     * and verified. Unless you know what you are doing, you should
+     * leave this to false. (A reason to set this to true is when the
+     * file integrity is verified externally anyway and you want to
+     * speed up the decompression, which matters mostly when using
+     * SHA-256 as the integrity check.)
+     *
+     * If .version >= 1, read by:
+     *   - lzma_block_decoder()
+     *   - lzma_block_buffer_decode()
+     *
+     * Written by (.version is ignored):
+     *   - lzma_block_header_decode() always sets this to false
+     */
+    lzma_bool ignore_check;
+
     lzma_bool reserved_bool2;
     lzma_bool reserved_bool3;
     lzma_bool reserved_bool4;
@@ -312,13 +338,20 @@ nothrow lzma_ret lzma_block_header_encode(const (lzma_block)* block, ubyte* out_
 /**
  * \brief       Decode Block Header
  *
- * block->version should be set to the highest value supported by the
- * application; currently the only possible version is zero. This function
- * will set version to the lowest value that still supports all the features
- * required by the Block Header.
+ * block->version should (usually) be set to the highest value supported
+ * by the application. If the application sets block->version to a value
+ * higher than supported by the current liblzma version, this function will
+ * downgrade block->version to the highest value supported by it. Thus one
+ * should check the value of block->version after calling this function if
+ * block->version was set to a non-zero value and the application doesn't
+ * otherwise know that the liblzma version being used is new enough to
+ * support the specified block->version.
  *
  * The size of the Block Header must have already been decoded with
  * lzma_block_header_size_decode() macro and stored to block->header_size.
+ *
+ * The integrity check type from Stream Header must have been stored
+ * to block->check.
  *
  * block->filters must have been allocated, but they don't need to be
  * initialized (possible existing filter options are not freed).
@@ -342,8 +375,8 @@ nothrow lzma_ret lzma_block_header_encode(const (lzma_block)* block, ubyte* out_
  *              - LZMA_PROG_ERROR: Invalid arguments, for example
  *                block->header_size is invalid or block->filters is NULL.
  */
-nothrow lzma_ret lzma_block_header_decode(lzma_block* block,
-        lzma_allocator* allocator, const(ubyte)* in_);
+nothrow lzma_ret lzma_block_header_decode(
+    lzma_block* block, const(lzma_allocator)* allocator, const(ubyte)* in_);
 
 
 /**
@@ -485,9 +518,27 @@ nothrow size_t lzma_block_buffer_bound(size_t uncompressed_size);
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_block_buffer_encode(
-        lzma_block *block, lzma_allocator *allocator,
-        const(ubyte)* in_, size_t in_size,
-        ubyte* out_, size_t *out_pos, size_t out_size);
+    lzma_block *block, const(lzma_allocator) *allocator,
+    const(ubyte)* in_, size_t in_size,
+    ubyte* out_, size_t *out_pos, size_t out_size);
+
+
+/**
+ * \brief       Single-call uncompressed .xz Block encoder
+ *
+ * This is like lzma_block_buffer_encode() except this doesn't try to
+ * compress the data and instead encodes the data using LZMA2 uncompressed
+ * chunks. The required output buffer size can be determined with
+ * lzma_block_buffer_bound().
+ *
+ * Since the data won't be compressed, this function ignores block->filters.
+ * This function doesn't take lzma_allocator because this function doesn't
+ * allocate any memory from the heap.
+ */
+nothrow lzma_ret lzma_block_uncomp_encode(
+    lzma_block *block,
+    const ubyte *in_, size_t in_size,
+    ubyte *out_, size_t *out_pos, size_t out_size);
 
 
 /**
@@ -518,6 +569,6 @@ nothrow lzma_ret lzma_block_buffer_encode(
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_block_buffer_decode(
-        lzma_block *block, lzma_allocator *allocator,
-        const(ubyte)* in_, size_t *in_pos, size_t in_size,
-        ubyte* out_, size_t *out_pos, size_t out_size);
+    lzma_block *block, const(lzma_allocator) *allocator,
+    const(ubyte)* in_, size_t *in_pos, size_t in_size,
+    ubyte* out_, size_t *out_pos, size_t out_size);

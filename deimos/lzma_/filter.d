@@ -115,8 +115,9 @@ nothrow lzma_bool lzma_filter_decoder_is_supported(lzma_vli id);
  *                is not NULL.
  *              - LZMA_PROG_ERROR: src or dest is NULL.
  */
-nothrow lzma_ret lzma_filters_copy(const lzma_filter*src,
-        lzma_filter *dest, lzma_allocator *allocator);
+nothrow lzma_ret lzma_filters_copy(
+    const lzma_filter* src,
+    lzma_filter *dest, const(lzma_allocator) *allocator);
 
 
 /**
@@ -251,9 +252,9 @@ nothrow lzma_ret lzma_filters_update(
  *              won't necessarily meet that bound.)
  */
 nothrow lzma_ret lzma_raw_buffer_encode(
-        const lzma_filter *filters, lzma_allocator *allocator,
-        const(ubyte) *in_, size_t in_size, ubyte *out_,
-        size_t *out_pos, size_t out_size);
+    const lzma_filter *filters, const(lzma_allocator) *allocator,
+    const(ubyte) *in_, size_t in_size, ubyte *out_,
+    size_t *out_pos, size_t out_size);
 
 
 /**
@@ -274,10 +275,11 @@ nothrow lzma_ret lzma_raw_buffer_encode(
  * \param       out_size    Size of the out buffer; the first byte into
  *                          which no data is written to is out[out_size].
  */
-nothrow lzma_ret lzma_raw_buffer_decode(const lzma_filter *filters,
-        lzma_allocator *allocator,
-        const(ubyte) *in_, size_t *in_pos, size_t in_size,
-        ubyte *out_, size_t *out_pos, size_t out_size);
+nothrow lzma_ret lzma_raw_buffer_decode(
+    const lzma_filter *filters,
+    const lzma_allocator *allocator,
+    const(ubyte) *in_, size_t *in_pos, size_t in_size,
+    ubyte *out_, size_t *out_pos, size_t out_size);
 
 
 /**
@@ -351,8 +353,8 @@ nothrow lzma_ret lzma_properties_encode(
  *              - LZMA_MEM_ERROR
  */
 nothrow lzma_ret lzma_properties_decode(
-        lzma_filter *filter, lzma_allocator *allocator,
-        const ubyte *props, size_t props_size);
+    lzma_filter *filter, const lzma_allocator *allocator,
+    const ubyte *props, size_t props_size);
 
 
 /**
@@ -412,5 +414,5 @@ nothrow lzma_ret lzma_filter_flags_encode(const lzma_filter *filter,
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_filter_flags_decode(
-        lzma_filter *filter, lzma_allocator *allocator,
-        const ubyte *in_, size_t *in_pos, size_t in_size);
+    lzma_filter *filter, const lzma_allocator *allocator,
+    const ubyte *in_, size_t *in_pos, size_t in_size);

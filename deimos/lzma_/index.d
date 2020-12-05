@@ -304,7 +304,7 @@ nothrow ulong lzma_index_memused(const lzma_index *i);
  * \return      On success, a pointer to an empty initialized lzma_index is
  *              returned. If allocation fails, NULL is returned.
  */
-nothrow lzma_index* lzma_index_init(lzma_allocator *allocator);
+nothrow lzma_index* lzma_index_init(const lzma_allocator *allocator);
 
 
 /**
@@ -312,7 +312,7 @@ nothrow lzma_index* lzma_index_init(lzma_allocator *allocator);
  *
  * If i is NULL, this does nothing.
  */
-nothrow void lzma_index_end(lzma_index *i, lzma_allocator *allocator);
+nothrow void lzma_index_end(lzma_index *i, const lzma_allocator *allocator);
 
 
 /**
@@ -340,8 +340,8 @@ nothrow void lzma_index_end(lzma_index *i, lzma_allocator *allocator);
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_index_append(
-        lzma_index *i, lzma_allocator *allocator,
-        lzma_vli unpadded_size, lzma_vli uncompressed_size);
+    lzma_index *i, const lzma_allocator *allocator,
+    lzma_vli unpadded_size, lzma_vli uncompressed_size);
 
 
 /**
@@ -551,7 +551,7 @@ nothrow lzma_bool lzma_index_iter_locate(
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_index_cat(
-        lzma_index *dest, lzma_index *src, lzma_allocator *allocator);
+    lzma_index *dest, lzma_index *src, const lzma_allocator *allocator);
 
 
 /**
@@ -560,7 +560,7 @@ nothrow lzma_ret lzma_index_cat(
  * \return      A copy of the lzma_index, or NULL if memory allocation failed.
  */
 nothrow lzma_index * lzma_index_dup(
-        const lzma_index *i, lzma_allocator *allocator);
+    const lzma_index *i, const lzma_allocator *allocator);
 
 
 /**
@@ -570,8 +570,7 @@ nothrow lzma_index * lzma_index_dup(
  * \param       i           Pointer to lzma_index which should be encoded.
  *
  * The valid `action' values for lzma_code() are LZMA_RUN and LZMA_FINISH.
- * It is enough to use only one of them (you can choose freely; use LZMA_RUN
- * to support liblzma versions older than 5.0.0).
+ * It is enough to use only one of them (you can choose freely).
  *
  * \return      - LZMA_OK: Initialization succeeded, continue with lzma_code().
  *              - LZMA_MEM_ERROR
@@ -593,16 +592,21 @@ nothrow lzma_ret lzma_index_encoder(
  *                          to a new lzma_index, which the application
  *                          has to later free with lzma_index_end().
  * \param       memlimit    How much memory the resulting lzma_index is
- *                          allowed to require.
+ *                          allowed to require. liblzma 5.2.3 and earlier
+ *                          don't allow 0 here and return LZMA_PROG_ERROR;
+ *                          later versions treat 0 as if 1 had been specified.
  *
- * The valid `action' values for lzma_code() are LZMA_RUN and LZMA_FINISH.
- * It is enough to use only one of them (you can choose freely; use LZMA_RUN
- * to support liblzma versions older than 5.0.0).
+ * Valid `action' arguments to lzma_code() are LZMA_RUN and LZMA_FINISH.
+ * There is no need to use LZMA_FINISH, but it's allowed because it may
+ * simplify certain types of applications.
  *
  * \return      - LZMA_OK: Initialization succeeded, continue with lzma_code().
  *              - LZMA_MEM_ERROR
- *              - LZMA_MEMLIMIT_ERROR
  *              - LZMA_PROG_ERROR
+ *
+ *              liblzma 5.2.3 and older list also LZMA_MEMLIMIT_ERROR here
+ *              but that error code has never been possible from this
+ *              initialization function.
  */
 nothrow lzma_ret lzma_index_decoder(
         lzma_stream *strm, lzma_index **i, ulong memlimit);
@@ -659,5 +663,5 @@ nothrow lzma_ret lzma_index_buffer_encode(const lzma_index *i,
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_index_buffer_decode(lzma_index **i,
-        ulong *memlimit, lzma_allocator *allocator,
+        ulong *memlimit, const lzma_allocator *allocator,
         const ubyte *in_, size_t *in_pos, size_t in_size);

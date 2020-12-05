@@ -59,6 +59,130 @@ enum uint LZMA_PRESET_LEVEL_MASK = 0x1FU;
  */
 enum uint LZMA_PRESET_EXTREME = (1U << 31);
 
+/**
+ * \brief       Multithreading options
+ */
+struct lzma_mt {
+    /**
+     * \brief       Flags
+     *
+     * Set this to zero if no flags are wanted.
+     *
+     * No flags are currently supported.
+     */
+    uint flags;
+
+    /**
+     * \brief       Number of worker threads to use
+     */
+    uint threads;
+
+    /**
+     * \brief       Maximum uncompressed size of a Block
+     *
+     * The encoder will start a new .xz Block every block_size bytes.
+     * Using LZMA_FULL_FLUSH or LZMA_FULL_BARRIER with lzma_code()
+     * the caller may tell liblzma to start a new Block earlier.
+     *
+     * With LZMA2, a recommended block size is 2-4 times the LZMA2
+     * dictionary size. With very small dictionaries, it is recommended
+     * to use at least 1 MiB block size for good compression ratio, even
+     * if this is more than four times the dictionary size. Note that
+     * these are only recommendations for typical use cases; feel free
+     * to use other values. Just keep in mind that using a block size
+     * less than the LZMA2 dictionary size is waste of RAM.
+     *
+     * Set this to 0 to let liblzma choose the block size depending
+     * on the compression options. For LZMA2 it will be 3*dict_size
+     * or 1 MiB, whichever is more.
+     *
+     * For each thread, about 3 * block_size bytes of memory will be
+     * allocated. This may change in later liblzma versions. If so,
+     * the memory usage will probably be reduced, not increased.
+     */
+    ulong block_size;
+
+    /**
+     * \brief       Timeout to allow lzma_code() to return early
+     *
+     * Multithreading can make liblzma to consume input and produce
+     * output in a very bursty way: it may first read a lot of input
+     * to fill internal buffers, then no input or output occurs for
+     * a while.
+     *
+     * In single-threaded mode, lzma_code() won't return until it has
+     * either consumed all the input or filled the output buffer. If
+     * this is done in multithreaded mode, it may cause a call
+     * lzma_code() to take even tens of seconds, which isn't acceptable
+     * in all applications.
+     *
+     * To avoid very long blocking times in lzma_code(), a timeout
+     * (in milliseconds) may be set here. If lzma_code() would block
+     * longer than this number of milliseconds, it will return with
+     * LZMA_OK. Reasonable values are 100 ms or more. The xz command
+     * line tool uses 300 ms.
+     *
+     * If long blocking times are fine for you, set timeout to a special
+     * value of 0, which will disable the timeout mechanism and will make
+     * lzma_code() block until all the input is consumed or the output
+     * buffer has been filled.
+     *
+     * \note        Even with a timeout, lzma_code() might sometimes take
+     *              somewhat long time to return. No timing guarantees
+     *              are made.
+     */
+    uint timeout;
+
+    /**
+     * \brief       Compression preset (level and possible flags)
+     *
+     * The preset is set just like with lzma_easy_encoder().
+     * The preset is ignored if filters below is non-NULL.
+     */
+    uint preset;
+
+    /**
+     * \brief       Filter chain (alternative to a preset)
+     *
+     * If this is NULL, the preset above is used. Otherwise the preset
+     * is ignored and the filter chain specified here is used.
+     */
+    const lzma_filter *filters;
+
+    /**
+     * \brief       Integrity check type
+     *
+     * See check.h for available checks. The xz command line tool
+     * defaults to LZMA_CHECK_CRC64, which is a good choice if you
+     * are unsure.
+     */
+    lzma_check check;
+
+    /*
+     * Reserved space to allow possible future extensions without
+     * breaking the ABI. You should not touch these, because the names
+     * of these variables may change. These are and will never be used
+     * with the currently supported options, so it is safe to leave these
+     * uninitialized.
+     */
+    lzma_reserved_enum reserved_enum1;
+    lzma_reserved_enum reserved_enum2;
+    lzma_reserved_enum reserved_enum3;
+    uint reserved_int1;
+    uint reserved_int2;
+    uint reserved_int3;
+    uint reserved_int4;
+    ulong reserved_int5;
+    ulong reserved_int6;
+    ulong reserved_int7;
+    ulong reserved_int8;
+    void *reserved_ptr1;
+    void *reserved_ptr2;
+    void *reserved_ptr3;
+    void *reserved_ptr4;
+
+}
+
 
 /**
  * \brief       Calculate approximate memory usage of easy encoder
@@ -162,7 +286,8 @@ nothrow lzma_ret lzma_easy_encoder(
  */
 nothrow lzma_ret lzma_easy_buffer_encode(
         uint preset, lzma_check check,
-        lzma_allocator *allocator, const(ubyte)* in_, size_t in_size,
+        const(lzma_allocator) *allocator,
+        const(ubyte)* in_, size_t in_size,
         ubyte* out_, size_t *out_pos, size_t out_size);
 
 
@@ -184,6 +309,46 @@ nothrow lzma_ret lzma_easy_buffer_encode(
  */
 nothrow lzma_ret lzma_stream_encoder(lzma_stream *strm,
         const lzma_filter *filters, lzma_check check);
+
+
+/**
+ * \brief       Calculate approximate memory usage of multithreaded .xz encoder
+ *
+ * Since doing the encoding in threaded mode doesn't affect the memory
+ * requirements of single-threaded decompressor, you can use
+ * lzma_easy_decoder_memusage(options->preset) or
+ * lzma_raw_decoder_memusage(options->filters) to calculate
+ * the decompressor memory requirements.
+ *
+ * \param       options Compression options
+ *
+ * \return      Number of bytes of memory required for encoding with the
+ *              given options. If an error occurs, for example due to
+ *              unsupported preset or filter chain, UINT64_MAX is returned.
+ */
+nothrow ulong lzma_stream_encoder_mt_memusage(const lzma_mt *options);
+
+
+/**
+ * \brief       Initialize multithreaded .xz Stream encoder
+ *
+ * This provides the functionality of lzma_easy_encoder() and
+ * lzma_stream_encoder() as a single function for multithreaded use.
+ *
+ * The supported actions for lzma_code() are LZMA_RUN, LZMA_FULL_FLUSH,
+ * LZMA_FULL_BARRIER, and LZMA_FINISH. Support for LZMA_SYNC_FLUSH might be
+ * added in the future.
+ *
+ * \param       strm    Pointer to properly prepared lzma_stream
+ * \param       options Pointer to multithreaded compression options
+ *
+ * \return      - LZMA_OK
+ *              - LZMA_MEM_ERROR
+ *              - LZMA_UNSUPPORTED_CHECK
+ *              - LZMA_OPTIONS_ERROR
+ *              - LZMA_PROG_ERROR
+ */
+nothrow lzma_ret lzma_stream_encoder_mt(lzma_stream *strm, const lzma_mt *options);
 
 
 /**
@@ -263,7 +428,8 @@ nothrow size_t lzma_stream_buffer_bound(size_t uncompressed_size);
  */
 nothrow lzma_ret lzma_stream_buffer_encode(
         lzma_filter *filters, lzma_check check,
-        lzma_allocator *allocator, const(ubyte)* in_, size_t in_size,
+        const(lzma_allocator) *allocator,
+        const(ubyte)* in_, size_t in_size,
         ubyte* out_, size_t *out_pos, size_t out_size);
 
 
@@ -298,6 +464,30 @@ enum uint LZMA_TELL_ANY_CHECK = 0x04U;
 
 
 /**
+ * This flag makes lzma_code() not calculate and verify the integrity check
+ * of the compressed data in .xz files. This means that invalid integrity
+ * check values won't be detected and LZMA_DATA_ERROR won't be returned in
+ * such cases.
+ *
+ * This flag only affects the checks of the compressed data itself; the CRC32
+ * values in the .xz headers will still be verified normally.
+ *
+ * Don't use this flag unless you know what you are doing. Possible reasons
+ * to use this flag:
+ *
+ *   - Trying to recover data from a corrupt .xz file.
+ *
+ *   - Speeding up decompression, which matters mostly with SHA-256
+ *     or with files that have compressed extremely well. It's recommended
+ *     to not use this flag for this purpose unless the file integrity is
+ *     verified externally in some other way.
+ *
+ * Support for this flag was added in liblzma 5.1.4beta.
+ */
+enum uint LZMA_IGNORE_CHECK = 0x10;
+
+
+/**
  * This flag enables decoding of concatenated files with file formats that
  * allow concatenating compressed files as is. From the formats currently
  * supported by liblzma, only the .xz format allows concatenated files.
@@ -319,7 +509,10 @@ enum uint LZMA_CONCATENATED = 0x08U;
  *
  * \param       strm        Pointer to properly prepared lzma_stream
  * \param       memlimit    Memory usage limit as bytes. Use UINT64_MAX
- *                          to effectively disable the limiter.
+ *                          to effectively disable the limiter. liblzma
+ *                          5.2.3 and earlier don't allow 0 here and return
+ *                          LZMA_PROG_ERROR; later versions treat 0 as if 1
+ *                          had been specified.
  * \param       flags       Bitwise-or of zero or more of the decoder flags:
  *                          LZMA_TELL_NO_CHECK, LZMA_TELL_UNSUPPORTED_CHECK,
  *                          LZMA_TELL_ANY_CHECK, LZMA_CONCATENATED
@@ -342,7 +535,10 @@ nothrow lzma_ret lzma_stream_decoder(
  *
  * \param       strm        Pointer to properly prepared lzma_stream
  * \param       memlimit    Memory usage limit as bytes. Use UINT64_MAX
- *                          to effectively disable the limiter.
+ *                          to effectively disable the limiter. liblzma
+ *                          5.2.3 and earlier don't allow 0 here and return
+ *                          LZMA_PROG_ERROR; later versions treat 0 as if 1
+ *                          had been specified.
  * \param       flags       Bitwise-or of flags, or zero for no flags.
  *
  * \return      - LZMA_OK: Initialization was successful.
@@ -357,9 +553,16 @@ nothrow lzma_ret lzma_auto_decoder(
 /**
  * \brief       Initialize .lzma decoder (legacy file format)
  *
+ * \param       strm        Pointer to properly prepared lzma_stream
+ * \param       memlimit    Memory usage limit as bytes. Use UINT64_MAX
+ *                          to effectively disable the limiter. liblzma
+ *                          5.2.3 and earlier don't allow 0 here and return
+ *                          LZMA_PROG_ERROR; later versions treat 0 as if 1
+ *                          had been specified.
+ *
  * Valid `action' arguments to lzma_code() are LZMA_RUN and LZMA_FINISH.
- * There is no need to use LZMA_FINISH, but allowing it may simplify
- * certain types of applications.
+ * There is no need to use LZMA_FINISH, but it's allowed because it may
+ * simplify certain types of applications.
  *
  * \return      - LZMA_OK
  *              - LZMA_MEM_ERROR
@@ -408,6 +611,7 @@ nothrow lzma_ret lzma_alone_decoder(
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_stream_buffer_decode(
-        ulong *memlimit, uint flags, lzma_allocator *allocator,
+        ulong *memlimit, uint flags,
+        const(lzma_allocator) *allocator,
         const (ubyte)* in_, size_t *in_pos, size_t in_size,
         ubyte* out_, size_t *out_pos, size_t out_size);
