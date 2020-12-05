@@ -42,188 +42,188 @@ struct lzma_index {};
  */
 struct lzma_index_iter
 {
-	struct StreamStruct
-	{
-		/**
-		 * \brief       Pointer to Stream Flags
-		 *
-		 * This is NULL if Stream Flags have not been set for
-		 * this Stream with lzma_index_stream_flags().
-		 */
-		const lzma_stream_flags *flags;
+    struct StreamStruct
+    {
+        /**
+         * \brief       Pointer to Stream Flags
+         *
+         * This is NULL if Stream Flags have not been set for
+         * this Stream with lzma_index_stream_flags().
+         */
+        const lzma_stream_flags *flags;
 
-		const void *reserved_ptr1;
-		const void *reserved_ptr2;
-		const void *reserved_ptr3;
+        const void *reserved_ptr1;
+        const void *reserved_ptr2;
+        const void *reserved_ptr3;
 
-		/**
-		 * \brief       Stream number in the lzma_index
-		 *
-		 * The first Stream is 1.
-		 */
-		lzma_vli number;
+        /**
+         * \brief       Stream number in the lzma_index
+         *
+         * The first Stream is 1.
+         */
+        lzma_vli number;
 
-		/**
-		 * \brief       Number of Blocks in the Stream
-		 *
-		 * If this is zero, the block structure below has
-		 * undefined values.
-		 */
-		lzma_vli block_count;
+        /**
+         * \brief       Number of Blocks in the Stream
+         *
+         * If this is zero, the block structure below has
+         * undefined values.
+         */
+        lzma_vli block_count;
 
-		/**
-		 * \brief       Compressed start offset of this Stream
-		 *
-		 * The offset is relative to the beginning of the lzma_index
-		 * (i.e. usually the beginning of the .xz file).
-		 */
-		lzma_vli compressed_offset;
+        /**
+         * \brief       Compressed start offset of this Stream
+         *
+         * The offset is relative to the beginning of the lzma_index
+         * (i.e. usually the beginning of the .xz file).
+         */
+        lzma_vli compressed_offset;
 
-		/**
-		 * \brief       Uncompressed start offset of this Stream
-		 *
-		 * The offset is relative to the beginning of the lzma_index
-		 * (i.e. usually the beginning of the .xz file).
-		 */
-		lzma_vli uncompressed_offset;
+        /**
+         * \brief       Uncompressed start offset of this Stream
+         *
+         * The offset is relative to the beginning of the lzma_index
+         * (i.e. usually the beginning of the .xz file).
+         */
+        lzma_vli uncompressed_offset;
 
-		/**
-		 * \brief       Compressed size of this Stream
-		 *
-		 * This includes all headers except the possible
-		 * Stream Padding after this Stream.
-		 */
-		lzma_vli compressed_size;
+        /**
+         * \brief       Compressed size of this Stream
+         *
+         * This includes all headers except the possible
+         * Stream Padding after this Stream.
+         */
+        lzma_vli compressed_size;
 
-		/**
-		 * \brief       Uncompressed size of this Stream
-		 */
-		lzma_vli uncompressed_size;
+        /**
+         * \brief       Uncompressed size of this Stream
+         */
+        lzma_vli uncompressed_size;
 
-		/**
-		 * \brief       Size of Stream Padding after this Stream
-		 *
-		 * If it hasn't been set with lzma_index_stream_padding(),
-		 * this defaults to zero. Stream Padding is always
-		 * a multiple of four bytes.
-		 */
-		lzma_vli padding;
+        /**
+         * \brief       Size of Stream Padding after this Stream
+         *
+         * If it hasn't been set with lzma_index_stream_padding(),
+         * this defaults to zero. Stream Padding is always
+         * a multiple of four bytes.
+         */
+        lzma_vli padding;
 
-		lzma_vli reserved_vli1;
-		lzma_vli reserved_vli2;
-		lzma_vli reserved_vli3;
-		lzma_vli reserved_vli4;
-	}
-	StreamStruct stream;
+        lzma_vli reserved_vli1;
+        lzma_vli reserved_vli2;
+        lzma_vli reserved_vli3;
+        lzma_vli reserved_vli4;
+    }
+    StreamStruct stream;
 
-	struct BlockStruct
-	{
-		/**
-		 * \brief       Block number in the file
-		 *
-		 * The first Block is 1.
-		 */
-		lzma_vli number_in_file;
+    struct BlockStruct
+    {
+        /**
+         * \brief       Block number in the file
+         *
+         * The first Block is 1.
+         */
+        lzma_vli number_in_file;
 
-		/**
-		 * \brief       Compressed start offset of this Block
-		 *
-		 * This offset is relative to the beginning of the
-		 * lzma_index (i.e. usually the beginning of the .xz file).
-		 * Normally this is where you should seek in the .xz file
-		 * to start decompressing this Block.
-		 */
-		lzma_vli compressed_file_offset;
+        /**
+         * \brief       Compressed start offset of this Block
+         *
+         * This offset is relative to the beginning of the
+         * lzma_index (i.e. usually the beginning of the .xz file).
+         * Normally this is where you should seek in the .xz file
+         * to start decompressing this Block.
+         */
+        lzma_vli compressed_file_offset;
 
-		/**
-		 * \brief       Uncompressed start offset of this Block
-		 *
-		 * This offset is relative to the beginning of the lzma_index
-		 * (i.e. usually the beginning of the .xz file).
-		 *
-		 * When doing random-access reading, it is possible that
-		 * the target offset is not exactly at Block boundary. One
-		 * will need to compare the target offset against
-		 * uncompressed_file_offset or uncompressed_stream_offset,
-		 * and possibly decode and throw away some amount of data
-		 * before reaching the target offset.
-		 */
-		lzma_vli uncompressed_file_offset;
+        /**
+         * \brief       Uncompressed start offset of this Block
+         *
+         * This offset is relative to the beginning of the lzma_index
+         * (i.e. usually the beginning of the .xz file).
+         *
+         * When doing random-access reading, it is possible that
+         * the target offset is not exactly at Block boundary. One
+         * will need to compare the target offset against
+         * uncompressed_file_offset or uncompressed_stream_offset,
+         * and possibly decode and throw away some amount of data
+         * before reaching the target offset.
+         */
+        lzma_vli uncompressed_file_offset;
 
-		/**
-		 * \brief       Block number in this Stream
-		 *
-		 * The first Block is 1.
-		 */
-		lzma_vli number_in_stream;
+        /**
+         * \brief       Block number in this Stream
+         *
+         * The first Block is 1.
+         */
+        lzma_vli number_in_stream;
 
-		/**
-		 * \brief       Compressed start offset of this Block
-		 *
-		 * This offset is relative to the beginning of the Stream
-		 * containing this Block.
-		 */
-		lzma_vli compressed_stream_offset;
+        /**
+         * \brief       Compressed start offset of this Block
+         *
+         * This offset is relative to the beginning of the Stream
+         * containing this Block.
+         */
+        lzma_vli compressed_stream_offset;
 
-		/**
-		 * \brief       Uncompressed start offset of this Block
-		 *
-		 * This offset is relative to the beginning of the Stream
-		 * containing this Block.
-		 */
-		lzma_vli uncompressed_stream_offset;
+        /**
+         * \brief       Uncompressed start offset of this Block
+         *
+         * This offset is relative to the beginning of the Stream
+         * containing this Block.
+         */
+        lzma_vli uncompressed_stream_offset;
 
-		/**
-		 * \brief       Uncompressed size of this Block
-		 *
-		 * You should pass this to the Block decoder if you will
-		 * decode this Block. It will allow the Block decoder to
-		 * validate the uncompressed size.
-		 */
-		lzma_vli uncompressed_size;
+        /**
+         * \brief       Uncompressed size of this Block
+         *
+         * You should pass this to the Block decoder if you will
+         * decode this Block. It will allow the Block decoder to
+         * validate the uncompressed size.
+         */
+        lzma_vli uncompressed_size;
 
-		/**
-		 * \brief       Unpadded size of this Block
-		 *
-		 * You should pass this to the Block decoder if you will
-		 * decode this Block. It will allow the Block decoder to
-		 * validate the unpadded size.
-		 */
-		lzma_vli unpadded_size;
+        /**
+         * \brief       Unpadded size of this Block
+         *
+         * You should pass this to the Block decoder if you will
+         * decode this Block. It will allow the Block decoder to
+         * validate the unpadded size.
+         */
+        lzma_vli unpadded_size;
 
-		/**
-		 * \brief       Total compressed size
-		 *
-		 * This includes all headers and padding in this Block.
-		 * This is useful if you need to know how many bytes
-		 * the Block decoder will actually read.
-		 */
-		lzma_vli total_size;
+        /**
+         * \brief       Total compressed size
+         *
+         * This includes all headers and padding in this Block.
+         * This is useful if you need to know how many bytes
+         * the Block decoder will actually read.
+         */
+        lzma_vli total_size;
 
-		lzma_vli reserved_vli1;
-		lzma_vli reserved_vli2;
-		lzma_vli reserved_vli3;
-		lzma_vli reserved_vli4;
+        lzma_vli reserved_vli1;
+        lzma_vli reserved_vli2;
+        lzma_vli reserved_vli3;
+        lzma_vli reserved_vli4;
 
-		const void *reserved_ptr1;
-		const void *reserved_ptr2;
-		const void *reserved_ptr3;
-		const void *reserved_ptr4;
-	}
-	BlockStruct block;
+        const void *reserved_ptr1;
+        const void *reserved_ptr2;
+        const void *reserved_ptr3;
+        const void *reserved_ptr4;
+    }
+    BlockStruct block;
 
-	/*
-	 * Internal data which is used to store the state of the iterator.
-	 * The exact format may vary between liblzma versions, so don't
-	 * touch these in any way.
-	 */
-	union InternalData
-	{
-		const void *p;
-		size_t s;
-		lzma_vli v;
-	}
-	InternalData[6] internal;
+    /*
+     * Internal data which is used to store the state of the iterator.
+     * The exact format may vary between liblzma versions, so don't
+     * touch these in any way.
+     */
+    union InternalData
+    {
+        const void *p;
+        size_t s;
+        lzma_vli v;
+    }
+    InternalData[6] internal;
 }
 
 
@@ -232,40 +232,40 @@ struct lzma_index_iter
  */
 enum lzma_index_iter_mode
 {
-	LZMA_INDEX_ITER_ANY             = 0,
-		/**<
-		 * \brief       Get the next Block or Stream
-		 *
-		 * Go to the next Block if the current Stream has at least
-		 * one Block left. Otherwise go to the next Stream even if
-		 * it has no Blocks. If the Stream has no Blocks
-		 * (lzma_index_iter.stream.block_count == 0),
-		 * lzma_index_iter.block will have undefined values.
-		 */
+    LZMA_INDEX_ITER_ANY             = 0,
+        /**<
+         * \brief       Get the next Block or Stream
+         *
+         * Go to the next Block if the current Stream has at least
+         * one Block left. Otherwise go to the next Stream even if
+         * it has no Blocks. If the Stream has no Blocks
+         * (lzma_index_iter.stream.block_count == 0),
+         * lzma_index_iter.block will have undefined values.
+         */
 
-	LZMA_INDEX_ITER_STREAM          = 1,
-		/**<
-		 * \brief       Get the next Stream
-		 *
-		 * Go to the next Stream even if the current Stream has
-		 * unread Blocks left. If the next Stream has at least one
-		 * Block, the iterator will point to the first Block.
-		 * If there are no Blocks, lzma_index_iter.block will have
-		 * undefined values.
-		 */
+    LZMA_INDEX_ITER_STREAM          = 1,
+        /**<
+         * \brief       Get the next Stream
+         *
+         * Go to the next Stream even if the current Stream has
+         * unread Blocks left. If the next Stream has at least one
+         * Block, the iterator will point to the first Block.
+         * If there are no Blocks, lzma_index_iter.block will have
+         * undefined values.
+         */
 
-	LZMA_INDEX_ITER_BLOCK           = 2,
-		/**<
-		 * \brief       Get the next Block
-		 *
-		 * Go to the next Block if the current Stream has at least
-		 * one Block left. If the current Stream has no Blocks left,
-		 * the next Stream with at least one Block is located and
-		 * the iterator will be made to point to the first Block of
-		 * that Stream.
-		 */
+    LZMA_INDEX_ITER_BLOCK           = 2,
+        /**<
+         * \brief       Get the next Block
+         *
+         * Go to the next Block if the current Stream has at least
+         * one Block left. If the current Stream has no Blocks left,
+         * the next Stream with at least one Block is located and
+         * the iterator will be made to point to the first Block of
+         * that Stream.
+         */
 
-	LZMA_INDEX_ITER_NONEMPTY_BLOCK  = 3
+    LZMA_INDEX_ITER_NONEMPTY_BLOCK  = 3
 
 }
 
@@ -286,7 +286,7 @@ enum lzma_index_iter_mode
  * if the internal implementation is modified.
  */
 nothrow ulong lzma_index_memusage(
-		lzma_vli streams, lzma_vli blocks);
+        lzma_vli streams, lzma_vli blocks);
 
 
 /**
@@ -340,8 +340,8 @@ nothrow void lzma_index_end(lzma_index *i, lzma_allocator *allocator);
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_index_append(
-		lzma_index *i, lzma_allocator *allocator,
-		lzma_vli unpadded_size, lzma_vli uncompressed_size);
+        lzma_index *i, lzma_allocator *allocator,
+        lzma_vli unpadded_size, lzma_vli uncompressed_size);
 
 
 /**
@@ -361,7 +361,7 @@ nothrow lzma_ret lzma_index_append(
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_index_stream_flags(
-		lzma_index *i, const lzma_stream_flags *stream_flags);
+        lzma_index *i, const lzma_stream_flags *stream_flags);
 
 
 /**
@@ -391,7 +391,7 @@ nothrow pure uint lzma_index_checks(const lzma_index *i);
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_index_stream_padding(
-		lzma_index *i, lzma_vli stream_padding);
+        lzma_index *i, lzma_vli stream_padding);
 
 
 /**
@@ -473,7 +473,7 @@ nothrow pure lzma_vli lzma_index_uncompressed_size(const lzma_index *i);
  * to easily restart reading at some particular position.
  */
 nothrow void lzma_index_iter_init(
-		lzma_index_iter *iter, const lzma_index *i);
+        lzma_index_iter *iter, const lzma_index *i);
 
 
 /**
@@ -499,7 +499,7 @@ nothrow void lzma_index_iter_rewind(lzma_index_iter *iter);
  *              value, *iter is not modified and this function returns true.
  */
 nothrow lzma_bool lzma_index_iter_next(
-		lzma_index_iter *iter, lzma_index_iter_mode mode);
+        lzma_index_iter *iter, lzma_index_iter_mode mode);
 
 
 /**
@@ -526,7 +526,7 @@ nothrow lzma_bool lzma_index_iter_next(
  * is not modified, and this function returns true.
  */
 nothrow lzma_bool lzma_index_iter_locate(
-		lzma_index_iter *iter, lzma_vli target);
+        lzma_index_iter *iter, lzma_vli target);
 
 
 /**
@@ -551,7 +551,7 @@ nothrow lzma_bool lzma_index_iter_locate(
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_index_cat(
-		lzma_index *dest, lzma_index *src, lzma_allocator *allocator);
+        lzma_index *dest, lzma_index *src, lzma_allocator *allocator);
 
 
 /**
@@ -560,7 +560,7 @@ nothrow lzma_ret lzma_index_cat(
  * \return      A copy of the lzma_index, or NULL if memory allocation failed.
  */
 nothrow lzma_index * lzma_index_dup(
-		const lzma_index *i, lzma_allocator *allocator);
+        const lzma_index *i, lzma_allocator *allocator);
 
 
 /**
@@ -578,7 +578,7 @@ nothrow lzma_index * lzma_index_dup(
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_index_encoder(
-		lzma_stream *strm, const lzma_index *i);
+        lzma_stream *strm, const lzma_index *i);
 
 
 /**
@@ -605,7 +605,7 @@ nothrow lzma_ret lzma_index_encoder(
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_index_decoder(
-		lzma_stream *strm, lzma_index **i, ulong memlimit);
+        lzma_stream *strm, lzma_index **i, ulong memlimit);
 
 
 /**
@@ -628,7 +628,7 @@ nothrow lzma_ret lzma_index_decoder(
  *              the internal data is allocated on stack.
  */
 nothrow lzma_ret lzma_index_buffer_encode(const lzma_index *i,
-		ubyte *out_, size_t *out_pos, size_t out_size);
+        ubyte *out_, size_t *out_pos, size_t out_size);
 
 
 /**
@@ -659,5 +659,5 @@ nothrow lzma_ret lzma_index_buffer_encode(const lzma_index *i,
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_index_buffer_decode(lzma_index **i,
-		ulong *memlimit, lzma_allocator *allocator,
-		const ubyte *in_, size_t *in_pos, size_t in_size);
+        ulong *memlimit, lzma_allocator *allocator,
+        const ubyte *in_, size_t *in_pos, size_t in_size);

@@ -26,28 +26,28 @@ extern(C):
  */
 enum lzma_check
 {
-	LZMA_CHECK_NONE     = 0,
-		/**<
-		 * No Check is calculated.
-		 *
-		 * Size of the Check field: 0 bytes
-		 */
+    LZMA_CHECK_NONE     = 0,
+        /**<
+         * No Check is calculated.
+         *
+         * Size of the Check field: 0 bytes
+         */
 
-	LZMA_CHECK_CRC32    = 1,
-		/**<
-		 * CRC32 using the polynomial from the IEEE 802.3 standard
-		 *
-		 * Size of the Check field: 4 bytes
-		 */
+    LZMA_CHECK_CRC32    = 1,
+        /**<
+         * CRC32 using the polynomial from the IEEE 802.3 standard
+         *
+         * Size of the Check field: 4 bytes
+         */
 
-	LZMA_CHECK_CRC64    = 4,
-		/**<
-		 * CRC64 using the polynomial from the ECMA-182 standard
-		 *
-		 * Size of the Check field: 8 bytes
-		 */
+    LZMA_CHECK_CRC64    = 4,
+        /**<
+         * CRC64 using the polynomial from the ECMA-182 standard
+         *
+         * Size of the Check field: 8 bytes
+         */
 
-	LZMA_CHECK_SHA256   = 10
+    LZMA_CHECK_SHA256   = 10
 }
 
 
@@ -111,7 +111,7 @@ enum LZMA_CHECK_SIZE_MAX = 64;
  *              again to continue CRC calculation.
  */
 nothrow pure uint lzma_crc32(
-		const(ubyte)* buf, size_t size, uint crc);
+        const(ubyte)* buf, size_t size, uint crc);
 
 
 /**
@@ -122,7 +122,7 @@ nothrow pure uint lzma_crc32(
  * This function is used similarly to lzma_crc32(). See its documentation.
  */
 nothrow pure ulong lzma_crc64(
-		const(ubyte)* buf, size_t size, ulong crc);
+        const(ubyte)* buf, size_t size, ulong crc);
 
 
 /*

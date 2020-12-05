@@ -129,7 +129,7 @@ nothrow pure ulong lzma_easy_decoder_memusage(uint preset);
  * there may be compression levels or flags that don't support LZMA_SYNC_FLUSH.
  */
 nothrow lzma_ret lzma_easy_encoder(
-		lzma_stream *strm, uint preset, lzma_check check);
+        lzma_stream *strm, uint preset, lzma_check check);
 
 
 /**
@@ -161,9 +161,9 @@ nothrow lzma_ret lzma_easy_encoder(
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_easy_buffer_encode(
-		uint preset, lzma_check check,
-		lzma_allocator *allocator, const(ubyte)* in_, size_t in_size,
-		ubyte* out_, size_t *out_pos, size_t out_size);
+        uint preset, lzma_check check,
+        lzma_allocator *allocator, const(ubyte)* in_, size_t in_size,
+        ubyte* out_, size_t *out_pos, size_t out_size);
 
 
 /**
@@ -183,7 +183,7 @@ nothrow lzma_ret lzma_easy_buffer_encode(
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_stream_encoder(lzma_stream *strm,
-		const lzma_filter *filters, lzma_check check);
+        const lzma_filter *filters, lzma_check check);
 
 
 /**
@@ -207,7 +207,7 @@ nothrow lzma_ret lzma_stream_encoder(lzma_stream *strm,
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_alone_encoder(
-		lzma_stream *strm, const lzma_options_lzma *options);
+        lzma_stream *strm, const lzma_options_lzma *options);
 
 
 /**
@@ -262,9 +262,9 @@ nothrow size_t lzma_stream_buffer_bound(size_t uncompressed_size);
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_stream_buffer_encode(
-		lzma_filter *filters, lzma_check check,
-		lzma_allocator *allocator, const(ubyte)* in_, size_t in_size,
-		ubyte* out_, size_t *out_pos, size_t out_size);
+        lzma_filter *filters, lzma_check check,
+        lzma_allocator *allocator, const(ubyte)* in_, size_t in_size,
+        ubyte* out_, size_t *out_pos, size_t out_size);
 
 
 /************
@@ -330,7 +330,7 @@ enum uint LZMA_CONCATENATED = 0x08U;
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_stream_decoder(
-		lzma_stream *strm, ulong memlimit, uint flags);
+        lzma_stream *strm, ulong memlimit, uint flags);
 
 
 /**
@@ -351,7 +351,7 @@ nothrow lzma_ret lzma_stream_decoder(
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_auto_decoder(
-		lzma_stream *strm, ulong memlimit, uint flags);
+        lzma_stream *strm, ulong memlimit, uint flags);
 
 
 /**
@@ -366,7 +366,7 @@ nothrow lzma_ret lzma_auto_decoder(
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_alone_decoder(
-		lzma_stream *strm, ulong memlimit);
+        lzma_stream *strm, ulong memlimit);
 
 
 /**
@@ -408,6 +408,6 @@ nothrow lzma_ret lzma_alone_decoder(
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_stream_buffer_decode(
-		ulong *memlimit, uint flags, lzma_allocator *allocator,
-		const (ubyte)* in_, size_t *in_pos, size_t in_size,
-		ubyte* out_, size_t *out_pos, size_t out_size);
+        ulong *memlimit, uint flags, lzma_allocator *allocator,
+        const (ubyte)* in_, size_t *in_pos, size_t in_size,
+        ubyte* out_, size_t *out_pos, size_t out_size);

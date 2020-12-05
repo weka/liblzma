@@ -30,220 +30,220 @@ extern(C):
  */
 struct lzma_block
 {
-	/**
-	 * \brief       Block format version
-	 *
-	 * To prevent API and ABI breakages if new features are needed in
-	 * the Block field, a version number is used to indicate which
-	 * fields in this structure are in use. For now, version must always
-	 * be zero. With non-zero version, most Block related functions will
-	 * return LZMA_OPTIONS_ERROR.
-	 *
-	 * Read by:
-	 *  - All functions that take pointer to lzma_block as argument,
-	 *    including lzma_block_header_decode().
-	 *
-	 * Written by:
-	 *  - lzma_block_header_decode()
-	 */
-	uint version_;
+    /**
+     * \brief       Block format version
+     *
+     * To prevent API and ABI breakages if new features are needed in
+     * the Block field, a version number is used to indicate which
+     * fields in this structure are in use. For now, version must always
+     * be zero. With non-zero version, most Block related functions will
+     * return LZMA_OPTIONS_ERROR.
+     *
+     * Read by:
+     *  - All functions that take pointer to lzma_block as argument,
+     *    including lzma_block_header_decode().
+     *
+     * Written by:
+     *  - lzma_block_header_decode()
+     */
+    uint version_;
 
-	/**
-	 * \brief       Size of the Block Header field
-	 *
-	 * This is always a multiple of four.
-	 *
-	 * Read by:
-	 *  - lzma_block_header_encode()
-	 *  - lzma_block_header_decode()
-	 *  - lzma_block_compressed_size()
-	 *  - lzma_block_unpadded_size()
-	 *  - lzma_block_total_size()
-	 *  - lzma_block_decoder()
-	 *  - lzma_block_buffer_decode()
-	 *
-	 * Written by:
-	 *  - lzma_block_header_size()
-	 *  - lzma_block_buffer_encode()
-	 */
+    /**
+     * \brief       Size of the Block Header field
+     *
+     * This is always a multiple of four.
+     *
+     * Read by:
+     *  - lzma_block_header_encode()
+     *  - lzma_block_header_decode()
+     *  - lzma_block_compressed_size()
+     *  - lzma_block_unpadded_size()
+     *  - lzma_block_total_size()
+     *  - lzma_block_decoder()
+     *  - lzma_block_buffer_decode()
+     *
+     * Written by:
+     *  - lzma_block_header_size()
+     *  - lzma_block_buffer_encode()
+     */
 
-	uint header_size;
-	enum LZMA_BLOCK_HEADER_SIZE_MIN = 8;
-	enum LZMA_BLOCK_HEADER_SIZE_MAX = 1024;
+    uint header_size;
+    enum LZMA_BLOCK_HEADER_SIZE_MIN = 8;
+    enum LZMA_BLOCK_HEADER_SIZE_MAX = 1024;
 
-	/**
-	 * \brief       Type of integrity Check
-	 *
-	 * The Check ID is not stored into the Block Header, thus its value
-	 * must be provided also when decoding.
-	 *
-	 * Read by:
-	 *  - lzma_block_header_encode()
-	 *  - lzma_block_header_decode()
-	 *  - lzma_block_compressed_size()
-	 *  - lzma_block_unpadded_size()
-	 *  - lzma_block_total_size()
-	 *  - lzma_block_encoder()
-	 *  - lzma_block_decoder()
-	 *  - lzma_block_buffer_encode()
-	 *  - lzma_block_buffer_decode()
-	 */
-	lzma_check check;
+    /**
+     * \brief       Type of integrity Check
+     *
+     * The Check ID is not stored into the Block Header, thus its value
+     * must be provided also when decoding.
+     *
+     * Read by:
+     *  - lzma_block_header_encode()
+     *  - lzma_block_header_decode()
+     *  - lzma_block_compressed_size()
+     *  - lzma_block_unpadded_size()
+     *  - lzma_block_total_size()
+     *  - lzma_block_encoder()
+     *  - lzma_block_decoder()
+     *  - lzma_block_buffer_encode()
+     *  - lzma_block_buffer_decode()
+     */
+    lzma_check check;
 
-	/**
-	 * \brief       Size of the Compressed Data in bytes
-	 *
-	 * Encoding: If this is not LZMA_VLI_UNKNOWN, Block Header encoder
-	 * will store this value to the Block Header. Block encoder doesn't
-	 * care about this value, but will set it once the encoding has been
-	 * finished.
-	 *
-	 * Decoding: If this is not LZMA_VLI_UNKNOWN, Block decoder will
-	 * verify that the size of the Compressed Data field matches
-	 * compressed_size.
-	 *
-	 * Usually you don't know this value when encoding in streamed mode,
-	 * and thus cannot write this field into the Block Header.
-	 *
-	 * In non-streamed mode you can reserve space for this field before
-	 * encoding the actual Block. After encoding the data, finish the
-	 * Block by encoding the Block Header. Steps in detail:
-	 *
-	 *  - Set compressed_size to some big enough value. If you don't know
-	 *    better, use LZMA_VLI_MAX, but remember that bigger values take
-	 *    more space in Block Header.
-	 *
-	 *  - Call lzma_block_header_size() to see how much space you need to
-	 *    reserve for the Block Header.
-	 *
-	 *  - Encode the Block using lzma_block_encoder() and lzma_code().
-	 *    It sets compressed_size to the correct value.
-	 *
-	 *  - Use lzma_block_header_encode() to encode the Block Header.
-	 *    Because space was reserved in the first step, you don't need
-	 *    to call lzma_block_header_size() anymore, because due to
-	 *    reserving, header_size has to be big enough. If it is "too big",
-	 *    lzma_block_header_encode() will add enough Header Padding to
-	 *    make Block Header to match the size specified by header_size.
-	 *
-	 * Read by:
-	 *  - lzma_block_header_size()
-	 *  - lzma_block_header_encode()
-	 *  - lzma_block_compressed_size()
-	 *  - lzma_block_unpadded_size()
-	 *  - lzma_block_total_size()
-	 *  - lzma_block_decoder()
-	 *  - lzma_block_buffer_decode()
-	 *
-	 * Written by:
-	 *  - lzma_block_header_decode()
-	 *  - lzma_block_compressed_size()
-	 *  - lzma_block_encoder()
-	 *  - lzma_block_decoder()
-	 *  - lzma_block_buffer_encode()
-	 *  - lzma_block_buffer_decode()
-	 */
-	lzma_vli compressed_size;
+    /**
+     * \brief       Size of the Compressed Data in bytes
+     *
+     * Encoding: If this is not LZMA_VLI_UNKNOWN, Block Header encoder
+     * will store this value to the Block Header. Block encoder doesn't
+     * care about this value, but will set it once the encoding has been
+     * finished.
+     *
+     * Decoding: If this is not LZMA_VLI_UNKNOWN, Block decoder will
+     * verify that the size of the Compressed Data field matches
+     * compressed_size.
+     *
+     * Usually you don't know this value when encoding in streamed mode,
+     * and thus cannot write this field into the Block Header.
+     *
+     * In non-streamed mode you can reserve space for this field before
+     * encoding the actual Block. After encoding the data, finish the
+     * Block by encoding the Block Header. Steps in detail:
+     *
+     *  - Set compressed_size to some big enough value. If you don't know
+     *    better, use LZMA_VLI_MAX, but remember that bigger values take
+     *    more space in Block Header.
+     *
+     *  - Call lzma_block_header_size() to see how much space you need to
+     *    reserve for the Block Header.
+     *
+     *  - Encode the Block using lzma_block_encoder() and lzma_code().
+     *    It sets compressed_size to the correct value.
+     *
+     *  - Use lzma_block_header_encode() to encode the Block Header.
+     *    Because space was reserved in the first step, you don't need
+     *    to call lzma_block_header_size() anymore, because due to
+     *    reserving, header_size has to be big enough. If it is "too big",
+     *    lzma_block_header_encode() will add enough Header Padding to
+     *    make Block Header to match the size specified by header_size.
+     *
+     * Read by:
+     *  - lzma_block_header_size()
+     *  - lzma_block_header_encode()
+     *  - lzma_block_compressed_size()
+     *  - lzma_block_unpadded_size()
+     *  - lzma_block_total_size()
+     *  - lzma_block_decoder()
+     *  - lzma_block_buffer_decode()
+     *
+     * Written by:
+     *  - lzma_block_header_decode()
+     *  - lzma_block_compressed_size()
+     *  - lzma_block_encoder()
+     *  - lzma_block_decoder()
+     *  - lzma_block_buffer_encode()
+     *  - lzma_block_buffer_decode()
+     */
+    lzma_vli compressed_size;
 
-	/**
-	 * \brief       Uncompressed Size in bytes
-	 *
-	 * This is handled very similarly to compressed_size above.
-	 *
-	 * uncompressed_size is needed by fewer functions than
-	 * compressed_size. This is because uncompressed_size isn't
-	 * needed to validate that Block stays within proper limits.
-	 *
-	 * Read by:
-	 *  - lzma_block_header_size()
-	 *  - lzma_block_header_encode()
-	 *  - lzma_block_decoder()
-	 *  - lzma_block_buffer_decode()
-	 *
-	 * Written by:
-	 *  - lzma_block_header_decode()
-	 *  - lzma_block_encoder()
-	 *  - lzma_block_decoder()
-	 *  - lzma_block_buffer_encode()
-	 *  - lzma_block_buffer_decode()
-	 */
-	lzma_vli uncompressed_size;
+    /**
+     * \brief       Uncompressed Size in bytes
+     *
+     * This is handled very similarly to compressed_size above.
+     *
+     * uncompressed_size is needed by fewer functions than
+     * compressed_size. This is because uncompressed_size isn't
+     * needed to validate that Block stays within proper limits.
+     *
+     * Read by:
+     *  - lzma_block_header_size()
+     *  - lzma_block_header_encode()
+     *  - lzma_block_decoder()
+     *  - lzma_block_buffer_decode()
+     *
+     * Written by:
+     *  - lzma_block_header_decode()
+     *  - lzma_block_encoder()
+     *  - lzma_block_decoder()
+     *  - lzma_block_buffer_encode()
+     *  - lzma_block_buffer_decode()
+     */
+    lzma_vli uncompressed_size;
 
-	/**
-	 * \brief       Array of filters
-	 *
-	 * There can be 1-4 filters. The end of the array is marked with
-	 * .id = LZMA_VLI_UNKNOWN.
-	 *
-	 * Read by:
-	 *  - lzma_block_header_size()
-	 *  - lzma_block_header_encode()
-	 *  - lzma_block_encoder()
-	 *  - lzma_block_decoder()
-	 *  - lzma_block_buffer_encode()
-	 *  - lzma_block_buffer_decode()
-	 *
-	 * Written by:
-	 *  - lzma_block_header_decode(): Note that this does NOT free()
-	 *    the old filter options structures. All unused filters[] will
-	 *    have .id == LZMA_VLI_UNKNOWN and .options == NULL. If
-	 *    decoding fails, all filters[] are guaranteed to be
-	 *    LZMA_VLI_UNKNOWN and NULL.
-	 *
-	 * \note        Because of the array is terminated with
-	 *              .id = LZMA_VLI_UNKNOWN, the actual array must
-	 *              have LZMA_FILTERS_MAX + 1 members or the Block
-	 *              Header decoder will overflow the buffer.
-	 */
-	lzma_filter *filters;
+    /**
+     * \brief       Array of filters
+     *
+     * There can be 1-4 filters. The end of the array is marked with
+     * .id = LZMA_VLI_UNKNOWN.
+     *
+     * Read by:
+     *  - lzma_block_header_size()
+     *  - lzma_block_header_encode()
+     *  - lzma_block_encoder()
+     *  - lzma_block_decoder()
+     *  - lzma_block_buffer_encode()
+     *  - lzma_block_buffer_decode()
+     *
+     * Written by:
+     *  - lzma_block_header_decode(): Note that this does NOT free()
+     *    the old filter options structures. All unused filters[] will
+     *    have .id == LZMA_VLI_UNKNOWN and .options == NULL. If
+     *    decoding fails, all filters[] are guaranteed to be
+     *    LZMA_VLI_UNKNOWN and NULL.
+     *
+     * \note        Because of the array is terminated with
+     *              .id = LZMA_VLI_UNKNOWN, the actual array must
+     *              have LZMA_FILTERS_MAX + 1 members or the Block
+     *              Header decoder will overflow the buffer.
+     */
+    lzma_filter *filters;
 
-	/**
-	 * \brief       Raw value stored in the Check field
-	 *
-	 * After successful coding, the first lzma_check_size(check) bytes
-	 * of this array contain the raw value stored in the Check field.
-	 *
-	 * Note that CRC32 and CRC64 are stored in little endian byte order.
-	 * Take it into account if you display the Check values to the user.
-	 *
-	 * Written by:
-	 *  - lzma_block_encoder()
-	 *  - lzma_block_decoder()
-	 *  - lzma_block_buffer_encode()
-	 *  - lzma_block_buffer_decode()
-	 */
-	ubyte[LZMA_CHECK_SIZE_MAX] raw_check;
+    /**
+     * \brief       Raw value stored in the Check field
+     *
+     * After successful coding, the first lzma_check_size(check) bytes
+     * of this array contain the raw value stored in the Check field.
+     *
+     * Note that CRC32 and CRC64 are stored in little endian byte order.
+     * Take it into account if you display the Check values to the user.
+     *
+     * Written by:
+     *  - lzma_block_encoder()
+     *  - lzma_block_decoder()
+     *  - lzma_block_buffer_encode()
+     *  - lzma_block_buffer_decode()
+     */
+    ubyte[LZMA_CHECK_SIZE_MAX] raw_check;
 
-	/*
-	 * Reserved space to allow possible future extensions without
-	 * breaking the ABI. You should not touch these, because the names
-	 * of these variables may change. These are and will never be used
-	 * with the currently supported options, so it is safe to leave these
-	 * uninitialized.
-	 */
-	void *reserved_ptr1;
-	void *reserved_ptr2;
-	void *reserved_ptr3;
-	uint reserved_int1;
-	uint reserved_int2;
-	lzma_vli reserved_int3;
-	lzma_vli reserved_int4;
-	lzma_vli reserved_int5;
-	lzma_vli reserved_int6;
-	lzma_vli reserved_int7;
-	lzma_vli reserved_int8;
-	lzma_reserved_enum reserved_enum1;
-	lzma_reserved_enum reserved_enum2;
-	lzma_reserved_enum reserved_enum3;
-	lzma_reserved_enum reserved_enum4;
-	lzma_bool reserved_bool1;
-	lzma_bool reserved_bool2;
-	lzma_bool reserved_bool3;
-	lzma_bool reserved_bool4;
-	lzma_bool reserved_bool5;
-	lzma_bool reserved_bool6;
-	lzma_bool reserved_bool7;
-	lzma_bool reserved_bool8;
+    /*
+     * Reserved space to allow possible future extensions without
+     * breaking the ABI. You should not touch these, because the names
+     * of these variables may change. These are and will never be used
+     * with the currently supported options, so it is safe to leave these
+     * uninitialized.
+     */
+    void *reserved_ptr1;
+    void *reserved_ptr2;
+    void *reserved_ptr3;
+    uint reserved_int1;
+    uint reserved_int2;
+    lzma_vli reserved_int3;
+    lzma_vli reserved_int4;
+    lzma_vli reserved_int5;
+    lzma_vli reserved_int6;
+    lzma_vli reserved_int7;
+    lzma_vli reserved_int8;
+    lzma_reserved_enum reserved_enum1;
+    lzma_reserved_enum reserved_enum2;
+    lzma_reserved_enum reserved_enum3;
+    lzma_reserved_enum reserved_enum4;
+    lzma_bool reserved_bool1;
+    lzma_bool reserved_bool2;
+    lzma_bool reserved_bool3;
+    lzma_bool reserved_bool4;
+    lzma_bool reserved_bool5;
+    lzma_bool reserved_bool6;
+    lzma_bool reserved_bool7;
+    lzma_bool reserved_bool8;
 }
 
 
@@ -343,7 +343,7 @@ nothrow lzma_ret lzma_block_header_encode(const (lzma_block)* block, ubyte* out_
  *                block->header_size is invalid or block->filters is NULL.
  */
 nothrow lzma_ret lzma_block_header_decode(lzma_block* block,
-		lzma_allocator* allocator, const(ubyte)* in_);
+        lzma_allocator* allocator, const(ubyte)* in_);
 
 
 /**
@@ -374,7 +374,7 @@ nothrow lzma_ret lzma_block_header_decode(lzma_block* block,
  *                between 8 and 1024 inclusive.
  */
 nothrow lzma_ret lzma_block_compressed_size(
-		lzma_block* block, lzma_vli unpadded_size);
+        lzma_block* block, lzma_vli unpadded_size);
 
 
 /**
@@ -418,7 +418,7 @@ nothrow pure lzma_vli lzma_block_total_size(const(lzma_block*) block);
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_block_encoder(
-		lzma_stream* strm, lzma_block* block);
+        lzma_stream* strm, lzma_block* block);
 
 
 /**
@@ -435,7 +435,7 @@ nothrow lzma_ret lzma_block_encoder(
  *              - LZMA_MEM_ERROR
  */
 nothrow lzma_ret lzma_block_decoder(
-		lzma_stream *strm, lzma_block *block);
+        lzma_stream *strm, lzma_block *block);
 
 
 /**
@@ -485,9 +485,9 @@ nothrow size_t lzma_block_buffer_bound(size_t uncompressed_size);
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_block_buffer_encode(
-		lzma_block *block, lzma_allocator *allocator,
-		const(ubyte)* in_, size_t in_size,
-		ubyte* out_, size_t *out_pos, size_t out_size);
+        lzma_block *block, lzma_allocator *allocator,
+        const(ubyte)* in_, size_t in_size,
+        ubyte* out_, size_t *out_pos, size_t out_size);
 
 
 /**
@@ -518,6 +518,6 @@ nothrow lzma_ret lzma_block_buffer_encode(
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_block_buffer_decode(
-		lzma_block *block, lzma_allocator *allocator,
-		const(ubyte)* in_, size_t *in_pos, size_t in_size,
-		ubyte* out_, size_t *out_pos, size_t out_size);
+        lzma_block *block, lzma_allocator *allocator,
+        const(ubyte)* in_, size_t *in_pos, size_t in_size,
+        ubyte* out_, size_t *out_pos, size_t out_size);

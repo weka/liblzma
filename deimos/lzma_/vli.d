@@ -116,7 +116,7 @@ bool lzma_vli_is_valid(lzma_vli vli)
  *              - LZMA_PROG_ERROR: Arguments are not sane.
  */
 nothrow lzma_ret lzma_vli_encode(lzma_vli vli, size_t *vli_pos,
-		ubyte* out_, size_t *out_pos, size_t out_size);
+        ubyte* out_, size_t *out_pos, size_t out_size);
 
 
 /**
@@ -155,7 +155,7 @@ nothrow lzma_ret lzma_vli_encode(lzma_vli vli, size_t *vli_pos,
  *              - LZMA_PROG_ERROR: Arguments are not sane.
  */
 nothrow lzma_ret lzma_vli_decode(lzma_vli *vli, size_t *vli_pos,
-		const(ubyte)* in_, size_t *in_pos, size_t in_size);
+        const(ubyte)* in_, size_t *in_pos, size_t in_size);
 
 
 /**

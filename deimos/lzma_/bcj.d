@@ -20,35 +20,35 @@ extern(C):
 /* Filter IDs for lzma_filter.id */
 
 enum LZMA_FILTER_X86 = 0x04UL;
-	/**<
-	 * Filter for x86 binaries
-	 */
+    /**<
+     * Filter for x86 binaries
+     */
 
 
 enum LZMA_FILTER_POWERPC = 0x05UL;
-	/**<
-	 * Filter for Big endian PowerPC binaries
-	 */
+    /**<
+     * Filter for Big endian PowerPC binaries
+     */
 
 enum LZMA_FILTER_IA64 = 0x06UL;
-	/**<
-	 * Filter for IA-64 (Itanium) binaries.
-	 */
+    /**<
+     * Filter for IA-64 (Itanium) binaries.
+     */
 
 enum LZMA_FILTER_ARM = 0x07UL;
-	/**<
-	 * Filter for ARM binaries.
-	 */
+    /**<
+     * Filter for ARM binaries.
+     */
 
 enum LZMA_FILTER_ARMTHUMB = 0x08UL;
-	/**<
-	 * Filter for ARM-Thumb binaries.
-	 */
+    /**<
+     * Filter for ARM-Thumb binaries.
+     */
 
 enum LZMA_FILTER_SPARC = 0x09UL;
-	/**<
-	 * Filter for SPARC binaries.
-	 */
+    /**<
+     * Filter for SPARC binaries.
+     */
 
 
 /**
@@ -73,19 +73,19 @@ enum LZMA_FILTER_SPARC = 0x09UL;
  */
 struct lzma_options_bcj
 {
-	/**
-	 * \brief       Start offset for conversions
-	 *
-	 * This setting is useful only when the same filter is used
-	 * _separately_ for multiple sections of the same executable file,
-	 * and the sections contain cross-section branch/call/jump
-	 * instructions. In that case it is beneficial to set the start
-	 * offset of the non-first sections so that the relative addresses
-	 * of the cross-section branch/call/jump instructions will use the
-	 * same absolute addresses as in the first section.
-	 *
-	 * When the pointer to options is NULL, the default value (zero)
-	 * is used.
-	 */
-	uint start_offset;
+    /**
+     * \brief       Start offset for conversions
+     *
+     * This setting is useful only when the same filter is used
+     * _separately_ for multiple sections of the same executable file,
+     * and the sections contain cross-section branch/call/jump
+     * instructions. In that case it is beneficial to set the start
+     * offset of the non-first sections so that the relative addresses
+     * of the cross-section branch/call/jump instructions will use the
+     * same absolute addresses as in the first section.
+     *
+     * When the pointer to options is NULL, the default value (zero)
+     * is used.
+     */
+    uint start_offset;
 }

@@ -28,7 +28,7 @@ enum LZMA_VERSION_STABILITY = LZMA_VERSION_STABILITY_STABLE;
 
 /*
 #ifndef LZMA_VERSION_COMMIT
-#	define LZMA_VERSION_COMMIT ""
+#    define LZMA_VERSION_COMMIT ""
 #endif*/
 enum LZMA_VERSION_COMMIT = "";
 
@@ -57,22 +57,22 @@ enum LZMA_VERSION_STABILITY_STABLE = 2;
  *              the version number of Igor Pavlov's LZMA SDK.
  */
 enum LZMA_VERSION = (LZMA_VERSION_MAJOR * 10000000U 
-		+ LZMA_VERSION_MINOR * 10000U
-		+ LZMA_VERSION_PATCH * 10U
-		+ LZMA_VERSION_STABILITY);
+        + LZMA_VERSION_MINOR * 10000U
+        + LZMA_VERSION_PATCH * 10U
+        + LZMA_VERSION_STABILITY);
 
 
 /*
  * Macros to construct the compile-time version string
  */
 static if(LZMA_VERSION_STABILITY == LZMA_VERSION_STABILITY_ALPHA)
-	enum LZMA_VERSION_STABILITY_STRING = "alpha";
+    enum LZMA_VERSION_STABILITY_STRING = "alpha";
 else static if(LZMA_VERSION_STABILITY == LZMA_VERSION_STABILITY_BETA)
-	enum LZMA_VERSION_STABILITY_STRING = "beta";
+    enum LZMA_VERSION_STABILITY_STRING = "beta";
 else static if(LZMA_VERSION_STABILITY == LZMA_VERSION_STABILITY_STABLE)
-	enum LZMA_VERSION_STABILITY_STRING = "";
+    enum LZMA_VERSION_STABILITY_STRING = "";
 else
-	static assert(false, "Incorrect LZMA_VERSION_STABILITY");
+    static assert(false, "Incorrect LZMA_VERSION_STABILITY");
 
 /**
  * \brief       Compile-time version as a string
@@ -84,9 +84,9 @@ else
  * in LZMA_VERSION macro.
  */
 enum LZMA_VERSION_STRING = 
-		to!string(LZMA_VERSION_MAJOR) ~ "." ~ to!string(LZMA_VERSION_MINOR) ~
-		"." ~ to!string(LZMA_VERSION_PATCH) ~ LZMA_VERSION_STABILITY_STRING ~
-		LZMA_VERSION_COMMIT;
+        to!string(LZMA_VERSION_MAJOR) ~ "." ~ to!string(LZMA_VERSION_MINOR) ~
+        "." ~ to!string(LZMA_VERSION_PATCH) ~ LZMA_VERSION_STABILITY_STRING ~
+        LZMA_VERSION_COMMIT;
 
 
 /**

@@ -42,26 +42,26 @@ enum LZMA_FILTERS_MAX = 4;
  */
 struct lzma_filter
 {
-	/**
-	 * \brief       Filter ID
-	 *
-	 * Use constants whose name begin with `LZMA_FILTER_' to specify
-	 * different filters. In an array of lzma_filter structures, use
-	 * LZMA_VLI_UNKNOWN to indicate end of filters.
-	 *
-	 * \note        This is not an enum, because on some systems enums
-	 *              cannot be 64-bit.
-	 */
-	lzma_vli id;
+    /**
+     * \brief       Filter ID
+     *
+     * Use constants whose name begin with `LZMA_FILTER_' to specify
+     * different filters. In an array of lzma_filter structures, use
+     * LZMA_VLI_UNKNOWN to indicate end of filters.
+     *
+     * \note        This is not an enum, because on some systems enums
+     *              cannot be 64-bit.
+     */
+    lzma_vli id;
 
-	/**
-	 * \brief       Pointer to filter-specific options structure
-	 *
-	 * If the filter doesn't need options, set this to NULL. If id is
-	 * set to LZMA_VLI_UNKNOWN, options is ignored, and thus
-	 * doesn't need be initialized.
-	 */
-	void *options;
+    /**
+     * \brief       Pointer to filter-specific options structure
+     *
+     * If the filter doesn't need options, set this to NULL. If id is
+     * set to LZMA_VLI_UNKNOWN, options is ignored, and thus
+     * doesn't need be initialized.
+     */
+    void *options;
 
 }
 
@@ -116,7 +116,7 @@ nothrow lzma_bool lzma_filter_decoder_is_supported(lzma_vli id);
  *              - LZMA_PROG_ERROR: src or dest is NULL.
  */
 nothrow lzma_ret lzma_filters_copy(const lzma_filter*src,
-		lzma_filter *dest, lzma_allocator *allocator);
+        lzma_filter *dest, lzma_allocator *allocator);
 
 
 /**
@@ -173,7 +173,7 @@ nothrow pure ulong lzma_raw_decoder_memusage(const lzma_filter *filters);
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_raw_encoder(
-		lzma_stream *strm, const lzma_filter *filters);
+        lzma_stream *strm, const lzma_filter *filters);
 
 
 /**
@@ -190,7 +190,7 @@ nothrow lzma_ret lzma_raw_encoder(
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_raw_decoder(
-		lzma_stream *strm, const lzma_filter *filters);
+        lzma_stream *strm, const lzma_filter *filters);
 
 
 /**
@@ -220,7 +220,7 @@ nothrow lzma_ret lzma_raw_decoder(
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_filters_update(
-		lzma_stream *strm, const lzma_filter *filters);
+        lzma_stream *strm, const lzma_filter *filters);
 
 
 /**
@@ -251,9 +251,9 @@ nothrow lzma_ret lzma_filters_update(
  *              won't necessarily meet that bound.)
  */
 nothrow lzma_ret lzma_raw_buffer_encode(
-		const lzma_filter *filters, lzma_allocator *allocator,
-		const(ubyte) *in_, size_t in_size, ubyte *out_,
-		size_t *out_pos, size_t out_size);
+        const lzma_filter *filters, lzma_allocator *allocator,
+        const(ubyte) *in_, size_t in_size, ubyte *out_,
+        size_t *out_pos, size_t out_size);
 
 
 /**
@@ -275,9 +275,9 @@ nothrow lzma_ret lzma_raw_buffer_encode(
  *                          which no data is written to is out[out_size].
  */
 nothrow lzma_ret lzma_raw_buffer_decode(const lzma_filter *filters,
-		lzma_allocator *allocator,
-		const(ubyte) *in_, size_t *in_pos, size_t in_size,
-		ubyte *out_, size_t *out_pos, size_t out_size);
+        lzma_allocator *allocator,
+        const(ubyte) *in_, size_t *in_pos, size_t in_size,
+        ubyte *out_, size_t *out_pos, size_t out_size);
 
 
 /**
@@ -300,7 +300,7 @@ nothrow lzma_ret lzma_raw_buffer_decode(const lzma_filter *filters,
  *              lzma_properties_encode() returns LZMA_OPTIONS_ERROR.
  */
 nothrow lzma_ret lzma_properties_size(
-		uint *size, const lzma_filter *filter);
+        uint *size, const lzma_filter *filter);
 
 
 /**
@@ -326,7 +326,7 @@ nothrow lzma_ret lzma_properties_size(
  *              won't do any harm either.
  */
 nothrow lzma_ret lzma_properties_encode(
-		const lzma_filter *filter, ubyte *props);
+        const lzma_filter *filter, ubyte *props);
 
 
 /**
@@ -351,8 +351,8 @@ nothrow lzma_ret lzma_properties_encode(
  *              - LZMA_MEM_ERROR
  */
 nothrow lzma_ret lzma_properties_decode(
-		lzma_filter *filter, lzma_allocator *allocator,
-		const ubyte *props, size_t props_size);
+        lzma_filter *filter, lzma_allocator *allocator,
+        const ubyte *props, size_t props_size);
 
 
 /**
@@ -375,7 +375,7 @@ nothrow lzma_ret lzma_properties_decode(
  *              you need to loop over every lzma_filter entry.
  */
 nothrow lzma_ret lzma_filter_flags_size(
-		uint *size, const lzma_filter *filter);
+        uint *size, const lzma_filter *filter);
 
 
 /**
@@ -397,7 +397,7 @@ nothrow lzma_ret lzma_filter_flags_size(
  *                lzma_filter_flags_size()).
  */
 nothrow lzma_ret lzma_filter_flags_encode(const lzma_filter *filter,
-		ubyte *out_, size_t *out_pos, size_t out_size);
+        ubyte *out_, size_t *out_pos, size_t out_size);
 
 
 /**
@@ -412,5 +412,5 @@ nothrow lzma_ret lzma_filter_flags_encode(const lzma_filter *filter,
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_filter_flags_decode(
-		lzma_filter *filter, lzma_allocator *allocator,
-		const ubyte *in_, size_t *in_pos, size_t in_size);
+        lzma_filter *filter, lzma_allocator *allocator,
+        const ubyte *in_, size_t *in_pos, size_t in_size);

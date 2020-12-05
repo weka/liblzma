@@ -38,14 +38,14 @@ struct lzma_index_hash {};
  * pointer than the index_hash that was given as an argument.
  */
 nothrow lzma_index_hash * lzma_index_hash_init(
-		lzma_index_hash *index_hash, lzma_allocator *allocator);
+        lzma_index_hash *index_hash, lzma_allocator *allocator);
 
 
 /**
  * \brief       Deallocate lzma_index_hash structure
  */
 nothrow void lzma_index_hash_end(
-		lzma_index_hash *index_hash, lzma_allocator *allocator);
+        lzma_index_hash *index_hash, lzma_allocator *allocator);
 
 
 /**
@@ -62,7 +62,7 @@ nothrow void lzma_index_hash_end(
  *                used when lzma_index_hash_decode() has already been used.
  */
 nothrow lzma_ret lzma_index_hash_append(lzma_index_hash *index_hash,
-		lzma_vli unpadded_size, lzma_vli uncompressed_size);
+        lzma_vli unpadded_size, lzma_vli uncompressed_size);
 
 
 /**
@@ -91,7 +91,7 @@ nothrow lzma_ret lzma_index_hash_append(lzma_index_hash *index_hash,
  *              - LZMA_PROG_ERROR
  */
 nothrow lzma_ret lzma_index_hash_decode(lzma_index_hash *index_hash,
-		const ubyte *in_, size_t *in_pos, size_t in_size);
+        const ubyte *in_, size_t *in_pos, size_t in_size);
 
 
 /**
@@ -100,4 +100,4 @@ nothrow lzma_ret lzma_index_hash_decode(lzma_index_hash *index_hash,
  * This is needed to verify the Backward Size field in the Stream Footer.
  */
 nothrow pure lzma_vli lzma_index_hash_size(
-		const lzma_index_hash *index_hash);
+        const lzma_index_hash *index_hash);
